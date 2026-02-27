@@ -4,53 +4,38 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
-import androidx.lifecycle.lifecycleScope
-import com.example.food_project.data.api.RecipesService
-import io.ktor.client.*
-import io.ktor.client.engine.cio.*
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.serialization.kotlinx.json.*
-import kotlinx.coroutines.launch
-import kotlinx.serialization.json.Json
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import com.example.food_project.data.api.entity.CategoryEntity
 
 class MainActivity : ComponentActivity() {
+
+    private val mainViewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // 1. Initialisation du client Ktor
-        val client = HttpClient(CIO) {
-            install(ContentNegotiation) {
-                json(Json {
-                    ignoreUnknownKeys = true
-                    isLenient = true
-                })
-            }
-        }
-
-        // 2. Initialisation du service (Ta classe que nous avons créée)
-        val recipeService = RecipesService(client)
-
-        // 3. Test de l'appel API
-        lifecycleScope.launch {
-            try {
-                val recipes = recipeService.searchRecipes("beef")
-
-                if (recipes.isNotEmpty()) {
-                    Log.d("API_TEST", "Succès ! Nombre de recettes : ${recipes.size}")
-                    Log.d("API_TEST", "Première recette : ${recipes[1].strMeal}")
-                } else {
-                    Log.d("API_TEST", "Aucune recette trouvée.")
-                }
-            } catch (e: Exception) {
-                Log.e("API_TEST", "Erreur : ${e.message}")
-            }
-        }
-
-        // 4. On affiche une UI simple
         setContent {
-            Text("Food Project - Application en cours...")
+            // 1. Collecte des données (le "magique" qui relie le Repo à l'UI)
+            val categoryList by mainViewModel.categories.collectAsState(initial = emptyList())
+            Log.d("MainActivity", "Categories: $categoryList") // Debug pour vérifier les données
+
+            // 2. Affichage
+            CategoryListScreen(categories = categoryList)
+        }
+    }
+}
+
+@Composable
+fun CategoryListScreen(categories: List<CategoryEntity>) {
+    LazyRow {
+        items(categories) { category ->
+            Text(text = category.strCategory) // Remplace par un composant design
         }
     }
 }

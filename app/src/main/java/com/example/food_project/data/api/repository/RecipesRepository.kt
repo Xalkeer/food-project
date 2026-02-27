@@ -1,6 +1,6 @@
 package com.example.food_project.data.api.repository
 
-import com.example.food_project.data.api.RecipesService
+import com.example.food_project.data.api.services.RecipesService
 import com.example.food_project.data.api.entity.RecipeEntity
 import com.example.food_project.data.api.local.RecipeDao
 import kotlinx.coroutines.flow.Flow
@@ -27,10 +27,6 @@ class RecipeRepository(
                     description = dto.strInstructions ?: ""
                 )
             }
-
-            // 3. Sauvegarde dans le cache (le Flow émettra automatiquement le changement)
-            dao.clearAll()
-            dao.insertRecipes(entities)
         } catch (e: Exception) {
             // Si l'appel API échoue (pas de réseau), on ne fait rien.
             // L'UI continuera d'afficher les données actuelles de la base (Room).

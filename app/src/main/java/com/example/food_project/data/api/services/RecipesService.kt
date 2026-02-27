@@ -1,10 +1,11 @@
-package com.example.food_project.data.api
+package com.example.food_project.data.api.services
 
 import com.example.food_project.data.api.dto.MealDTO
 import com.example.food_project.data.api.dto.MealResponse
-import io.ktor.client.*
-import io.ktor.client.call.*
-import io.ktor.client.request.*
+import io.ktor.client.HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.request.get
+import io.ktor.client.request.parameter
 
 class RecipesService(private val client: HttpClient) {
     private val baseUrl = "https://www.themealdb.com/api/json/v1/1/search.php"
@@ -15,6 +16,4 @@ class RecipesService(private val client: HttpClient) {
         }.body()
         return response.meals ?: emptyList()
     }
-
-
 }
