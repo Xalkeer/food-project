@@ -27,6 +27,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.example.food_project.data.database.AppDatabase
+import com.example.food_project.data.database.Meal
+import com.example.food_project.data.database.MealDao
 import com.example.food_project.ui.theme.FoodprojectTheme
 
 data class Restaurant(
