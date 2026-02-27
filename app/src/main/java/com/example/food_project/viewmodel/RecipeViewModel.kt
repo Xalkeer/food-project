@@ -54,8 +54,4 @@ class RestaurantViewModel : ViewModel() {
     fun selectCategory(category: String) {
         selectedCategory = category
     }
-
-    fun addRestaurant(restaurant: Restaurant) {
-        _restaurants.add(0, restaurant)
-    }
 }
