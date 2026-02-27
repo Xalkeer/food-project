@@ -22,10 +22,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.food_project.data.Restaurant
+import com.example.food_project.data.Meal
 
 @Composable
-fun RecipeCard(resto: Restaurant, onClick: () -> Unit) {
+fun RecipeCard(meal: Meal, onClick: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth().clickable { onClick() },
         shape = RoundedCornerShape(16.dp),
@@ -37,8 +37,8 @@ fun RecipeCard(resto: Restaurant, onClick: () -> Unit) {
                 Icon(Icons.Default.ShoppingCart, null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(40.dp))
             }
             Column(modifier = Modifier.padding(16.dp)) {
-                Text(resto.name, fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                Text("${resto.category} • ${resto.deliveryTime}", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(meal.title, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                Text("${meal.title} • ${meal.title}", color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
     }

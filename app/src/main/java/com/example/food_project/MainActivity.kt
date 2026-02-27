@@ -9,24 +9,26 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.food_project.data.database.AppDatabase
 import com.example.food_project.ui.screens.HomeScreen
 import com.example.food_project.ui.screens.LoadingScreen
 import com.example.food_project.ui.theme.FoodprojectTheme
-import com.example.food_project.viewmodel.RestaurantViewModel
+import com.example.food_project.viewmodel.MealViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val db = AppDatabase.getDatabase(applicationContext)
         enableEdgeToEdge()
         setContent {
             FoodprojectTheme {
-                val viewModel: RestaurantViewModel = viewModel()
+                val viewModel: MealViewModel = viewModel()
 
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    // 2. Logique d'affichage selon l'état de chargement
+
                     if (viewModel.isLoading) {
                         LoadingScreen()
                     } else {

@@ -3,6 +3,7 @@ package com.example.food_project.data.database
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
 @Entity(
@@ -10,11 +11,13 @@ import androidx.room.PrimaryKey
     foreignKeys = [
         ForeignKey(
             entity = Category::class,
-            parentColumns = ["category"],
-            childColumns = ["id"],
+            parentColumns = ["id"],
+            childColumns = ["category"],
             onDelete = ForeignKey.CASCADE
         )
-])
+    ],
+    indices = [Index(value = ["category"])]
+)
 data class Meal(
     @PrimaryKey() val id: Int,
     @ColumnInfo(name = "title") val title: String,

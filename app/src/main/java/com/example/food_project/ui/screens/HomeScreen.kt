@@ -16,16 +16,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.example.food_project.data.Restaurant
+import com.example.food_project.data.Meal
 import com.example.food_project.ui.components.CategoryFilters
 import com.example.food_project.ui.components.RecipeCard
 import com.example.food_project.ui.components.RecipeSearchBar
-import com.example.food_project.viewmodel.RestaurantViewModel
+import com.example.food_project.viewmodel.MealViewModel
 
 @Composable
-fun HomeScreen(viewModel: RestaurantViewModel) {
+fun HomeScreen(viewModel: MealViewModel) {
 
-    var selectedRestaurant by remember { mutableStateOf<Restaurant?>(null) }
+    var selectedRestaurant by remember { mutableStateOf<Meal?>(null) }
 
     Scaffold(containerColor = Color.Transparent) { padding ->
         Column(modifier = Modifier.fillMaxSize().padding(padding)) {
@@ -46,10 +46,10 @@ fun HomeScreen(viewModel: RestaurantViewModel) {
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                items(viewModel.filteredRestaurants) { resto ->
+                items(viewModel.filteredRestaurants) { meal ->
                     RecipeCard(
-                        resto = resto,
-                        onClick = { selectedRestaurant = resto }
+                        meal = meal,
+                        onClick = { selectedRestaurant = meal }
                     )
                 }
             }

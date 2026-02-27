@@ -3,19 +3,21 @@ package com.example.food_project.viewmodel
 import androidx.compose.runtime.*
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.food_project.data.Restaurant
+import com.example.food_project.data.Meal
+import com.example.food_project.data.database.Category
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class RestaurantViewModel : ViewModel() {
+class MealViewModel : ViewModel() {
     var isLoading by mutableStateOf(true)
         private set
 
-    private val _restaurants = mutableStateListOf<Restaurant>()
+    private val _meals = mutableStateListOf<Meal>()
 
     var searchText by mutableStateOf("")
-    var selectedCategory by mutableStateOf("Tout")
-    val categories = listOf("Tout", "Pizza", "Sushi", "Burger", "Tacos", "Salade")
+    var selectedCategory  by mutableStateOf(Category(0, "Tout", ""))
+    var categories = mutableStateListOf<Category>()
+
 
     init {
         loadInitialData()
@@ -25,14 +27,23 @@ class RestaurantViewModel : ViewModel() {
         viewModelScope.launch {
             delay(2000)
 
-            _restaurants.addAll(
+            // #TODO : C
+            categories.addAll(
                 listOf(
-                    Restaurant("Pizza Hut", "Pizza", "20-30 min", "0.99€", true),
-                    Restaurant("Sushi Shop", "Sushi", "30-45 min", "2.99€", true),
-                    Restaurant("Burger King", "Burger", "15-25 min", "Gratuit", false),
-                    Restaurant("O'Tacos", "Tacos", "20-35 min", "1.50€", true),
-                    Restaurant("Jour", "Salade", "15-20 min", "2.00€", false),
-                    Restaurant("Domino's", "Pizza", "25-35 min", "0.99€", true)
+                    Category(0, "Tout", ""),
+                    Category(1, "Pizza", ""),
+                    Category(2, "Sushi", "")
+                )
+            )
+
+            _meals.addAll(
+                listOf(
+                    Meal(1, "Pizza", 1, "0.99€", "Pizza", "Pizza","Pizza","Pizza",),
+                    Meal(2, "Sushi", 1, "2.99€", "Pizza", "Pizza","Pizza","Pizza",),
+                    Meal(3, "Burger", 1, "Gratuit", "Pizza", "Pizza","Pizza","Pizza",),
+                    Meal(4, "Tacos", 2, "1.50€", "Pizza", "Pizza","Pizza","Pizza",),
+                    Meal(5, "Salade", 2, "2.00€", "Pizza", "Pizza","Pizza","Pizza",),
+                    Meal(6, "Pizza", 2, "0.99€", "Pizza", "Pizza","Pizza","Pizza",)
                 )
             )
 
@@ -40,10 +51,10 @@ class RestaurantViewModel : ViewModel() {
         }
     }
 
-    val filteredRestaurants: List<Restaurant>
-        get() = _restaurants.filter { resto ->
-            val matchesCategory = selectedCategory == "Tout" || resto.category == selectedCategory
-            val matchesSearch = resto.name.contains(searchText, ignoreCase = true)
+    val filteredRestaurants: List<Meal>
+        get() = _meals.filter { resto ->
+            val matchesCategory = selectedCategory.title == "Tout" || resto.category == selectedCategory.id
+            val matchesSearch = resto.title.contains(searchText, ignoreCase = true)
             matchesCategory && matchesSearch
         }
 
@@ -51,7 +62,7 @@ class RestaurantViewModel : ViewModel() {
         searchText = query
     }
 
-    fun selectCategory(category: String) {
+    fun selectCategory(category: Category) {
         selectedCategory = category
     }
 }

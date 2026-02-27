@@ -34,26 +34,26 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import com.example.food_project.data.Restaurant
+import com.example.food_project.data.Meal
 import com.example.food_project.ui.components.DetailInfoItem
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RecipeDetailScreen(resto: Restaurant, onDismiss: () -> Unit) {
+fun RecipeDetailScreen(meal: Meal, onDismiss: () -> Unit) {
     Dialog(onDismissRequest = onDismiss, properties = DialogProperties(usePlatformDefaultWidth = false)) {
         Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.surface) {
-            Scaffold(topBar = { TopAppBar(title = { Text(resto.name, fontWeight = FontWeight.Bold) }, navigationIcon = { IconButton(onClick = onDismiss) { Icon(Icons.Default.Close, null) } }) }) { padding ->
+            Scaffold(topBar = { TopAppBar(title = { Text(meal.title, fontWeight = FontWeight.Bold) }, navigationIcon = { IconButton(onClick = onDismiss) { Icon(Icons.Default.Close, null) } }) }) { padding ->
                 Column(modifier = Modifier.padding(padding).verticalScroll(rememberScrollState())) {
                     Box(modifier = Modifier.fillMaxWidth().height(200.dp).background(MaterialTheme.colorScheme.outlineVariant), contentAlignment = Alignment.Center) {
                         Icon(Icons.Default.ShoppingCart, null, modifier = Modifier.size(80.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                     Column(modifier = Modifier.padding(20.dp)) {
-                        Text(resto.name, fontSize = 28.sp, fontWeight = FontWeight.Bold)
-                        Text(resto.category, color = MaterialTheme.colorScheme.primary, fontSize = 18.sp)
+                        Text(meal.title, fontSize = 28.sp, fontWeight = FontWeight.Bold)
+                        Text(meal.title, color = MaterialTheme.colorScheme.primary, fontSize = 18.sp)
                         HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-                            DetailInfoItem(Icons.Default.Info, "Temps", resto.deliveryTime)
-                            DetailInfoItem(Icons.Default.Notifications, "Frais", resto.deliveryFee)
+                            DetailInfoItem(Icons.Default.Info, "Temps", meal.title)
+                            DetailInfoItem(Icons.Default.Notifications, "Frais", meal.title)
                         }
                     }
                 }

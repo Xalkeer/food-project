@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 import kotlin.jvm.java
 
 @Database(
-    entities = [Meal::class],
+    entities = [Meal::class, Category::class],
     version = 1,
 ) abstract class AppDatabase : RoomDatabase() {
     abstract fun mealDao() : MealDao
