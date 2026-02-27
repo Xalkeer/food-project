@@ -10,14 +10,6 @@ import androidx.compose.ui.Modifier
 import com.example.food_project.ui.screens.HomeScreen
 import com.example.food_project.ui.theme.FoodprojectTheme
 
-data class Restaurant(
-    val name: String,
-    val category: String,
-    val deliveryTime: String,
-    val deliveryFee: String,
-    val isAvailable: Boolean
-)
-
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
