@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     id("com.google.devtools.ksp")
+
+    kotlin("plugin.serialization") version "2.3.10"
 }
 
 android {
@@ -38,6 +40,18 @@ android {
     buildFeatures {
         compose = true
     }
+    packaging {
+        resources {
+            excludes += "messages/**"
+            excludes += "misc/**"
+            excludes += "META-INF/*.kotlin_module"
+            excludes += "META-INF/extensions/**"
+            excludes += "META-INF/*.version"
+            excludes += "kotlin/**"
+            excludes += "kotlinManifest.properties"
+            pickFirsts += "DebugProbesKt.bin"
+        }
+    }
 }
 
 dependencies {
@@ -49,6 +63,18 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.appcompat)
+
+    // Room dependencies with auto-value exclusions
+    implementation(libs.androidx.room.compiler.processing.testing) {
+        exclude(group = "com.google.auto.value", module = "auto-value")
+    }
+    implementation(libs.androidx.room.common.jvm) {
+        exclude(group = "com.google.auto.value", module = "auto-value")
+    }
+
+    // Use the latest auto-value-annotations only
+    implementation("com.google.auto.value:auto-value-annotations:1.10.1")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -63,4 +89,10 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)
+
+    implementation("io.ktor:ktor-client-core:3.4.0")
+    implementation("io.ktor:ktor-client-cio:3.4.0")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:3.4.0")
+    implementation("io.ktor:ktor-client-content-negotiation:3.4.0")
+    implementation("io.ktor:ktor-client-logging:3.4.0")
 }
