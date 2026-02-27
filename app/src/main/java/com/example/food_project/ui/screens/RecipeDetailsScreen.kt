@@ -1,4 +1,4 @@
-package com.example.food_project.ui.components
+package com.example.food_project.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.example.food_project.data.Restaurant
+import com.example.food_project.ui.components.DetailInfoItem
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

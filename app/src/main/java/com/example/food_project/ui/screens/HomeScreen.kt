@@ -20,7 +20,6 @@ import androidx.compose.ui.unit.dp
 import com.example.food_project.data.Restaurant
 import com.example.food_project.ui.components.CategoryFilters
 import com.example.food_project.ui.components.RecipeCard
-import com.example.food_project.ui.components.RecipeDetailScreen
 import com.example.food_project.ui.components.RecipeSearchBar
 
 @Composable
