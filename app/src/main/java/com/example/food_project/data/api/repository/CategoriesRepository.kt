@@ -5,31 +5,24 @@ import com.example.food_project.data.api.dto.CategoryDTO
 import com.example.food_project.data.api.entity.CategoryEntity
 import com.example.food_project.data.api.local.CategoriesDAO
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 
 class CategoriesRepository(
     private val apiService: CategoriesService,
-    private val dao: CategoriesDAO
+    private val dao: CategoriesDAO? = null
 ) {
-    // Flow observé par l'UI
-    val categories: Flow<List<CategoryEntity>> = dao.getAllCategories()
+    // Sans base de données, on expose un Flow vide pour l'instant
+    val categories: Flow<List<CategoryEntity>> =
+        dao?.getAllCategories() ?: flowOf(emptyList())
 
-    // Rafraîchit les catégories depuis l'API et les stocke en base
+    /**
+     * Récupère les catégories depuis l'API distante.
+     * Si un DAO est fourni, on pourra plus tard y sauvegarder les données.
+     */
     suspend fun refreshCategories(): List<CategoryDTO> {
         return try {
-            val remote = apiService.getCategories()
-            // Mapper DTO -> Entity
-            val entities = remote.map { dto ->
-                CategoryEntity(
-                    id = dto.id,
-                    strCategory = dto.name,
-                    strCategoryThumb = dto.imageUrl
-                )
-            }
-            // Sauvegarde en base
-            dao.insertAll(entities)
-            remote
+            apiService.getCategories()
         } catch (e: Exception) {
-            // En cas d'erreur, on renvoie une liste vide
             emptyList()
         }
     }

@@ -9,16 +9,12 @@ class RecipeRepository(
     private val api: RecipesService,
     private val dao: RecipeDao
 ) {
-    // L'UI observe ce Flow : si la base change, l'UI se met à jour
     val recipes: Flow<List<RecipeEntity>> = dao.getAllRecipes()
 
-    // Méthode pour mettre à jour les données (appelée par le ViewModel)
     suspend fun refreshRecipes(query: String) {
         try {
-            // 1. Appel API
             val remoteData = api.searchRecipes(query)
 
-            // 2. Conversion (Mapper DTO -> Entity)
             val entities = remoteData.map { dto ->
                 RecipeEntity(
                     id = dto.idMeal,

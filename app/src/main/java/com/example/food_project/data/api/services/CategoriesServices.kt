@@ -1,5 +1,6 @@
 package com.example.food_project.data.api.services
 
+import android.util.Log
 import com.example.food_project.data.api.dto.CategoryDTO
 import com.example.food_project.data.api.dto.CategoryResponse
 import io.ktor.client.HttpClient
@@ -12,14 +13,12 @@ class CategoriesService(private val client: HttpClient) {
 
     suspend fun getCategories(): List<CategoryDTO> {
         return try {
-            // On appelle l'API et on convertit directement en objet
+            Log.d("CategoriesService", "Appel API sur $baseUrl")
             val response: CategoryResponse = client.get(baseUrl).body()
-
-            // On renvoie la liste des catégories
+            Log.d("CategoriesService", "Réponse reçue avec ${'$'}{response.categories.size} catégories")
             response.categories
         } catch (e: Exception) {
-            // Si une erreur survient (réseau, json mal formé), on renvoie une liste vide
-            // plutôt que de faire planter l'application
+            Log.e("CategoriesService", "Erreur lors de l'appel API", e)
             emptyList()
         }
     }
