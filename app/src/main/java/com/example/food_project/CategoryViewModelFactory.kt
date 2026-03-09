@@ -3,7 +3,7 @@ package com.example.food_project
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.food_project.data.api.CategoryViewModel
+import com.example.food_project.data.api.viewModels.CategoryViewModel
 import com.example.food_project.data.api.repository.CategoriesRepository
 import com.example.food_project.data.api.services.CategoriesService
 import io.ktor.client.HttpClient

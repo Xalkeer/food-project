@@ -1,4 +1,4 @@
-package com.example.food_project.data.api
+package com.example.food_project.data.api.viewModels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -25,6 +25,7 @@ class CategoryViewModel(private val repository: CategoriesRepository) : ViewMode
                 dtos.forEach { dto ->
                     println("- id=${dto.id}, name=${dto.name}, imageUrl=${dto.imageUrl}")
                 }
+
 
                 // Mapper les DTO en entités simples pour l'affichage
                 _uiState.value = dtos.map { dto ->
