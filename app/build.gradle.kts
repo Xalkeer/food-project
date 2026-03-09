@@ -2,7 +2,9 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
 
-    kotlin("plugin.serialization") version "2.3.10"
+    // Aligné sur kotlin = "2.0.21" dans libs.versions.toml
+    kotlin("plugin.serialization") version "2.0.21"
+    id("com.google.devtools.ksp") version "2.0.21-1.0.28"
 }
 
 android {
@@ -64,16 +66,11 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.appcompat)
 
-    // Room dependencies with auto-value exclusions
-    implementation(libs.androidx.room.compiler.processing.testing) {
-        exclude(group = "com.google.auto.value", module = "auto-value")
-    }
-    implementation(libs.androidx.room.common.jvm) {
-        exclude(group = "com.google.auto.value", module = "auto-value")
-    }
+    // Room
+    implementation(libs.room.runtime)
+    implementation(libs.room.ktx)
+    ksp(libs.room.compiler)
 
-    // Use the latest auto-value-annotations only
-    implementation("com.google.auto.value:auto-value-annotations:1.10.1")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -81,11 +78,12 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
-    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.0") // ou version récente
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.0")
 
     implementation("io.ktor:ktor-client-core:3.4.0")
     implementation("io.ktor:ktor-client-cio:3.4.0")
     implementation("io.ktor:ktor-serialization-kotlinx-json:3.4.0")
     implementation("io.ktor:ktor-client-content-negotiation:3.4.0")
     implementation("io.ktor:ktor-client-logging:3.4.0")
+
 }

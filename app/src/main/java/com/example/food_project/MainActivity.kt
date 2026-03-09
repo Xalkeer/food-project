@@ -19,11 +19,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.food_project.data.api.viewModels.CategoryViewModel
 import com.example.food_project.data.api.entity.CategoryEntity
-import com.example.food_project.data.api.dto.RecipesDTO
+import com.example.food_project.data.api.entity.RecipeEntity
+import com.example.food_project.data.api.viewModels.CategoryViewModel
 import com.example.food_project.data.api.viewModels.RecipesViewModel
-
 
 class MainActivity : ComponentActivity() {
 
@@ -37,10 +36,6 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        println("🔵 [MainActivity] onCreate START")
-
-        // Charger les catégories au démarrage
-        println("🔵 [MainActivity] Appel categoryViewModel.loadCategories()")
         categoryViewModel.loadCategories()
 
         setContent {
@@ -49,47 +44,37 @@ class MainActivity : ComponentActivity() {
             val isLoading by recipesViewModel.isLoading.collectAsState()
             val errorMessage by recipesViewModel.errorMessage.collectAsState()
 
-            println("🔵 [MainActivity Composable] Recomposition - categories=${categories.size}, recipes=${recipes.size}, isLoading=$isLoading, error=$errorMessage")
-
             Surface(color = MaterialTheme.colorScheme.background) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text("Catégories", style = MaterialTheme.typography.headlineMedium)
                     CategoryListScreen(categories = categories)
 
                     Text(
-                        "Recettes (Test)",
+                        "Recettes",
                         style = MaterialTheme.typography.headlineMedium,
                         modifier = Modifier.padding(top = 16.dp)
                     )
 
-                    Button(onClick = {
-                        println("🔵 [MainActivity] Bouton cliqué - Lancement de searchRecipes('beef')")
-                        recipesViewModel.searchRecipes("beef")
-                    }) {
-                        Text("Tester API Recettes (beef)")
+                    Button(onClick = { recipesViewModel.searchRecipes("beef") }) {
+                        Text("Charger des recettes")
                     }
 
                     if (isLoading) {
-                        println("🔵 [MainActivity Composable] Affichage du CircularProgressIndicator")
                         CircularProgressIndicator(modifier = Modifier.padding(top = 16.dp))
                     }
 
-                    if (errorMessage != null) {
-                        println("🔴 [MainActivity Composable] Affichage erreur: $errorMessage")
+                    errorMessage?.let {
                         Text(
-                            text = "Erreur: $errorMessage",
+                            text = "Erreur: $it",
                             color = MaterialTheme.colorScheme.error,
                             modifier = Modifier.padding(top = 16.dp)
                         )
                     }
 
-                    println("🔵 [MainActivity Composable] Affichage RecipesListScreen avec ${recipes.size} recettes")
                     RecipesListScreen(recipes = recipes)
                 }
             }
         }
-
-        println("🟢 [MainActivity] onCreate TERMINÉ")
     }
 }
 
@@ -103,19 +88,20 @@ fun CategoryListScreen(categories: List<CategoryEntity>) {
 }
 
 @Composable
-fun RecipesListScreen(recipes: List<RecipesDTO>) {
+fun RecipesListScreen(recipes: List<RecipeEntity>) {
     if (recipes.isNotEmpty()) {
         Text(
-            "Recettes trouvées: ${recipes.size}",
+            text = "Recettes trouvées: ${recipes.size}",
             modifier = Modifier.padding(top = 16.dp),
             style = MaterialTheme.typography.bodyLarge
         )
+
         LazyColumn {
             items(recipes) { recipe ->
                 Column(modifier = Modifier.padding(8.dp)) {
-                    Text(text = recipe.strMeal, style = MaterialTheme.typography.bodyLarge)
+                    Text(text = recipe.title, style = MaterialTheme.typography.bodyLarge)
                     Text(
-                        text = "Catégorie: ${recipe.strCategory ?: "N/A"} | Zone: ${recipe.strArea ?: "N/A"}",
+                        text = "Catégorie: ${recipe.category ?: "N/A"} | Zone: ${recipe.area ?: "N/A"}",
                         style = MaterialTheme.typography.bodySmall
                     )
                 }

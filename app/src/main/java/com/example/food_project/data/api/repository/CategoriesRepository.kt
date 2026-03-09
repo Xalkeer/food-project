@@ -3,17 +3,17 @@ package com.example.food_project.data.api.repository
 import com.example.food_project.data.api.services.CategoriesService
 import com.example.food_project.data.api.dto.CategoryDTO
 import com.example.food_project.data.api.entity.CategoryEntity
-import com.example.food_project.data.api.local.CategoriesDAO
+import com.example.food_project.data.database.dao.CategoryDao
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
 class CategoriesRepository(
     private val apiService: CategoriesService,
-    private val dao: CategoriesDAO? = null
+    private val dao: CategoryDao? = null
 ) {
     // Sans base de données, on expose un Flow vide pour l'instant
     val categories: Flow<List<CategoryEntity>> =
-        dao?.getAllCategories() ?: flowOf(emptyList())
+        dao?.let { flowOf(it.getAll()) } ?: flowOf(emptyList())
 
     /**
      * Récupère les catégories depuis l'API distante.

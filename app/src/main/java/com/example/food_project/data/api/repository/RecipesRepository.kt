@@ -1,7 +1,7 @@
 package com.example.food_project.data.api.repository
 
 import com.example.food_project.data.api.entity.RecipeEntity
-import com.example.food_project.data.api.local.RecipeDao
+import com.example.food_project.data.database.RecipeDao
 import com.example.food_project.data.api.mappers.toEntities
 import com.example.food_project.data.api.services.RecipesService
 import kotlinx.coroutines.flow.Flow
@@ -23,9 +23,11 @@ class RecipeRepository(
                 println("  - id=${entity.id}, title=${entity.title}, category=${entity.category}")
             }
 
-            //dao.insertAll(entities)
-            // Lorsque j'aurais la BDD Interne ça permettra de les enrgistrer et de les afficher ensuite
-            println("🟢 [Repository] refreshRecipes TERMINÉ - ${entities.size} recettes")
+            // ✅ Insertion dans Room (BDD interne)
+            println("🔵 [Repository] Insertion de ${entities.size} recettes dans Room...")
+            dao.insertRecipes(entities)
+            println("🟢 [Repository] ${entities.size} recettes insérées dans la BDD interne")
+
         } catch (e: Exception) {
             println("🔴 [Repository] ERREUR lors du refresh: ${e.message}")
             e.printStackTrace()
