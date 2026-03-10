@@ -86,4 +86,9 @@ dependencies {
     implementation("io.ktor:ktor-client-content-negotiation:3.4.0")
     implementation("io.ktor:ktor-client-logging:3.4.0")
 
+    // Navigation Compose
+    implementation("androidx.navigation:navigation-compose:2.7.7")
+
+    // Coil pour les images
+    implementation("io.coil-kt:coil-compose:2.6.0")
 }

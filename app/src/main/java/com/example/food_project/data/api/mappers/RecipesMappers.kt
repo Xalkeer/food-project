@@ -35,3 +35,5 @@ fun RecipesDTO.toEntity(): RecipeEntity {
 }
 
 fun List<RecipesDTO>.toEntities(): List<RecipeEntity> = map { it.toEntity() }
+
+fun RecipesDTO.toEntities(): List<RecipeEntity> = listOf(this.toEntity())

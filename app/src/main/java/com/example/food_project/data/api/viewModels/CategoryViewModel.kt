@@ -10,8 +10,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class CategoryViewModel(private val repository: CategoriesRepository) : ViewModel() {
-
-    // État UI interne : categories à afficher dans MainActivity
     private val _uiState = MutableStateFlow<List<CategoryEntity>>(emptyList())
     val uiState: StateFlow<List<CategoryEntity>> = _uiState.asStateFlow()
 
@@ -20,14 +18,11 @@ class CategoryViewModel(private val repository: CategoriesRepository) : ViewMode
             try {
                 val dtos = repository.refreshCategories()
 
-                // Log console pour vérifier le contenu de l'API
                 println("Catégories reçues (${dtos.size}):")
                 dtos.forEach { dto ->
                     println("- id=${dto.id}, name=${dto.name}, imageUrl=${dto.imageUrl}")
                 }
 
-
-                // Mapper les DTO en entités simples pour l'affichage
                 _uiState.value = dtos.map { dto ->
                     CategoryEntity(
                         id = dto.id,

@@ -4,31 +4,47 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.food_project.data.api.entity.RecipeEntity
 import com.example.food_project.data.api.repository.RecipeRepository
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import java.util.logging.Logger
 
+@OptIn(FlowPreview::class)
 class RecipesViewModel(private val repository: RecipeRepository) : ViewModel() {
 
     private val logger = Logger.getLogger("RecipesViewModel")
-
-    // État UI : observe directement le Flow Room (source de vérité)
     private val _uiState = MutableStateFlow<List<RecipeEntity>>(emptyList())
     val uiState: StateFlow<List<RecipeEntity>> = _uiState.asStateFlow()
-
-    // État de chargement
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
-
-    // État d'erreur
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
+    private val _selectedRecipe = MutableStateFlow<RecipeEntity?>(null)
+    val selectedRecipe: StateFlow<RecipeEntity?> = _selectedRecipe.asStateFlow()
+    private val _selectedCategory = MutableStateFlow<String?>(null)
+    val selectedCategory: StateFlow<String?> = _selectedCategory.asStateFlow()
+    private val _searchQuery = MutableStateFlow("")
+    val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
+
+    fun onSearchQueryChange(query: String) {
+        _searchQuery.value = query
+    }
+
+    fun selectRecipe(recipe: RecipeEntity) {
+        _selectedRecipe.value = recipe
+    }
+
+    fun clearSelectedRecipe() {
+        _selectedRecipe.value = null
+    }
 
     init {
-        // Observer le Flow Room : l'UI se met à jour automatiquement
         viewModelScope.launch {
             repository.recipes
                 .catch { e ->
@@ -36,8 +52,18 @@ class RecipesViewModel(private val repository: RecipeRepository) : ViewModel() {
                     _errorMessage.value = "Erreur BDD: ${e.message}"
                 }
                 .collect { recipes ->
-                    println("🟢 [ViewModel] Room a notifié ${recipes.size} recettes")
                     _uiState.value = recipes
+                }
+        }
+
+        // Déclenche la recherche par nom automatiquement après 500ms d'inactivité
+        viewModelScope.launch {
+            _searchQuery
+                .debounce(500)
+                .distinctUntilChanged()
+                .filter { it.isNotBlank() }
+                .collect { query ->
+                    searchRecipesByName(query)
                 }
         }
     }
@@ -52,22 +78,83 @@ class RecipesViewModel(private val repository: RecipeRepository) : ViewModel() {
                 println("🔵 [ViewModel] searchRecipes START avec query='$query'")
                 _isLoading.value = true
                 _errorMessage.value = null
+                _selectedCategory.value = null
 
-                println("🔵 [ViewModel] Appel repository.refreshRecipes('$query')")
-                // Rafraîchit depuis l'API → insère dans Room → Flow notifie automatiquement
                 repository.refreshRecipes(query)
                 println("🟢 [ViewModel] repository.refreshRecipes terminé (Room mis à jour)")
 
                 _isLoading.value = false
-                println("🟢 [ViewModel] searchRecipes TERMINÉ avec succès")
-
             } catch (e: Exception) {
                 println("🔴 [ViewModel] ERREUR: ${e.message}")
                 logger.severe("Erreur lors de la recherche de recettes: ${e.message}")
                 e.printStackTrace()
                 _errorMessage.value = "Erreur: ${e.message}"
                 _isLoading.value = false
-                println("🔴 [ViewModel] searchRecipes TERMINÉ avec ERREUR")
+            }
+        }
+    }
+    fun searchRecipesById(id: String) {
+        viewModelScope.launch {
+            try {
+                println("🔵 [ViewModel] searchRecipesById START avec id='$id'")
+                _isLoading.value = true
+                _errorMessage.value = null
+
+                println("🔵 [ViewModel] Appel repository.refreshRecipeById('$id')")
+                // Rafraîchit depuis l'API → insère dans Room → Flow notifie automatiquement
+                repository.refreshRecipeById(id)
+                println("🟢 [ViewModel] repository.refreshRecipeById terminé (Room mis à jour)")
+                _isLoading.value = false
+                println("🟢 [ViewModel] searchRecipesById TERMINÉ avec succès")
+            } catch (e: Exception) {
+                println("🔴 [ViewModel] ERREUR: ${e.message}")
+                logger.severe("Erreur lors de la recherche de recette par ID: ${e.message}")
+                e.printStackTrace()
+                _errorMessage.value = "Erreur: ${e.message}"
+                _isLoading.value = false
+                println("🔴 [ViewModel] searchRecipesById TERMINÉ avec ERREUR")
+            }
+        }
+    }
+
+    fun searchRecipesByCategory(category: String) {
+        viewModelScope.launch {
+            try {
+                println("🔵 [ViewModel] searchRecipesByCategory START avec category='$category'")
+                _isLoading.value = true
+                _errorMessage.value = null
+                _selectedCategory.value = category
+
+                repository.refreshRecipesByCategory(category)
+                println("🟢 [ViewModel] repository.refreshRecipesByCategory terminé (Room mis à jour)")
+                _isLoading.value = false
+            } catch (e: Exception) {
+                println("🔴 [ViewModel] ERREUR: ${e.message}")
+                logger.severe("Erreur lors de la recherche de recettes par catégorie: ${e.message}")
+                e.printStackTrace()
+                _errorMessage.value = "Erreur: ${e.message}"
+                _isLoading.value = false
+            }
+        }
+    }
+
+    fun searchRecipesByName(name: String) {
+        viewModelScope.launch {
+            try {
+                println("🔵 [ViewModel] searchRecipesByName START avec name='$name'")
+                _isLoading.value = true
+                _errorMessage.value = null
+                _selectedCategory.value = null
+
+                repository.refreshRecipes(name)
+                println("🟢 [ViewModel] repository.refreshRecipes (by name) terminé (Room mis à jour)")
+                _isLoading.value = false
+            } catch (e: Exception) {
+                println("🔴 [ViewModel] ERREUR: ${e.message}")
+                logger.severe("Erreur lors de la recherche de recettes par nom: ${e.message}")
+                e.printStackTrace()
+                _errorMessage.value = "Erreur: ${e.message}"
+                _isLoading.value = false
             }
         }
     }

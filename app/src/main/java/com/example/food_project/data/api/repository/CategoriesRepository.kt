@@ -11,14 +11,6 @@ class CategoriesRepository(
     private val apiService: CategoriesService,
     private val dao: CategoryDao? = null
 ) {
-    // Sans base de données, on expose un Flow vide pour l'instant
-    val categories: Flow<List<CategoryEntity>> =
-        dao?.let { flowOf(it.getAll()) } ?: flowOf(emptyList())
-
-    /**
-     * Récupère les catégories depuis l'API distante.
-     * Si un DAO est fourni, on pourra plus tard y sauvegarder les données.
-     */
     suspend fun refreshCategories(): List<CategoryDTO> {
         return try {
             apiService.getCategories()
