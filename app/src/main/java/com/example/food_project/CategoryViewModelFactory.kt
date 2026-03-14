@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.food_project.data.api.viewModels.CategoryViewModel
 import com.example.food_project.data.api.repository.CategoriesRepository
 import com.example.food_project.data.api.services.CategoriesService
+import com.example.food_project.data.database.AppDatabase
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -36,7 +37,9 @@ class CategoryViewModelFactory(private val context: Context) : ViewModelProvider
             }
 
             val apiService = CategoriesService(client)
-            val repository = CategoriesRepository(apiService, dao = null)
+            val db = AppDatabase.getDatabase(context.applicationContext)
+            val categoryDao = db.categoryDao()
+            val repository = CategoriesRepository(apiService, categoryDao)
 
             println("[CategoryViewModelFactory] CategoryViewModel créé")
             return CategoryViewModel(repository) as T

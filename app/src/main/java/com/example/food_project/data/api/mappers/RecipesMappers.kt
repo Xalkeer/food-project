@@ -3,7 +3,7 @@ package com.example.food_project.data.api.mappers
 import com.example.food_project.data.api.dto.RecipesDTO
 import com.example.food_project.data.api.entity.RecipeEntity
 
-fun RecipesDTO.toEntity(): RecipeEntity {
+fun RecipesDTO.toEntity(forcedCategory: String? = null): RecipeEntity {
     val ingredients = listOfNotNull(
         strIngredient1, strIngredient2, strIngredient3, strIngredient4, strIngredient5,
         strIngredient6, strIngredient7, strIngredient8, strIngredient9, strIngredient10,
@@ -23,7 +23,7 @@ fun RecipesDTO.toEntity(): RecipeEntity {
         title = strMeal,
         imageUrl = strMealThumb,
         description = strInstructions.orEmpty(),
-        category = strCategory,
+        category = strCategory ?: forcedCategory,
         area = strArea,
         tags = strTags,
         youtube = strYoutube,
@@ -34,6 +34,6 @@ fun RecipesDTO.toEntity(): RecipeEntity {
     )
 }
 
-fun List<RecipesDTO>.toEntities(): List<RecipeEntity> = map { it.toEntity() }
+fun List<RecipesDTO>.toEntities(forcedCategory: String? = null): List<RecipeEntity> = map { it.toEntity(forcedCategory) }
 
 fun RecipesDTO.toEntities(): List<RecipeEntity> = listOf(this.toEntity())

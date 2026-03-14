@@ -2,16 +2,20 @@ package com.example.food_project.data.api.viewModels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.food_project.data.api.entity.CategoryEntity
 import com.example.food_project.data.api.entity.RecipeEntity
 import com.example.food_project.data.api.repository.RecipeRepository
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.util.logging.Logger
 
@@ -21,17 +25,42 @@ class RecipesViewModel(private val repository: RecipeRepository) : ViewModel() {
     private val logger = Logger.getLogger("RecipesViewModel")
     private val _uiState = MutableStateFlow<List<RecipeEntity>>(emptyList())
     val uiState: StateFlow<List<RecipeEntity>> = _uiState.asStateFlow()
-    private val _isLoading = MutableStateFlow(false)
+    private var _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+    private val _isInitialLoading = MutableStateFlow(true)
+    val isInitialLoading = _isInitialLoading.asStateFlow()
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
     private val _selectedRecipe = MutableStateFlow<RecipeEntity?>(null)
     val selectedRecipe: StateFlow<RecipeEntity?> = _selectedRecipe.asStateFlow()
-    private val _selectedCategory = MutableStateFlow<String?>(null)
-    val selectedCategory: StateFlow<String?> = _selectedCategory.asStateFlow()
+
+    private val _selectedCategory = MutableStateFlow("All")
+
+    val selectedCategory = _selectedCategory.asStateFlow()
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
 
+    val filteredRecipes: StateFlow<List<RecipeEntity>> = combine(
+        _uiState,
+        _searchQuery,
+        _selectedCategory
+    ) { recipes, query, selectedCat ->
+        recipes.filter { recipe ->
+            val matchesQuery = query.isBlank() || recipe.title.contains(query, ignoreCase = true)
+
+            val matchesCategory = if (selectedCat == "All" || selectedCat.isBlank()) {
+                true
+            } else {
+                recipe.category?.equals(selectedCat, ignoreCase = true) == true
+            }
+
+            matchesQuery && matchesCategory
+        }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = emptyList()
+    )
     fun onSearchQueryChange(query: String) {
         _searchQuery.value = query
     }
@@ -53,10 +82,10 @@ class RecipesViewModel(private val repository: RecipeRepository) : ViewModel() {
                 }
                 .collect { recipes ->
                     _uiState.value = recipes
+                    _isInitialLoading.value = false
                 }
         }
 
-        // Déclenche la recherche par nom automatiquement après 500ms d'inactivité
         viewModelScope.launch {
             _searchQuery
                 .debounce(500)
@@ -64,6 +93,7 @@ class RecipesViewModel(private val repository: RecipeRepository) : ViewModel() {
                 .filter { it.isNotBlank() }
                 .collect { query ->
                     searchRecipesByName(query)
+                    _isLoading.value = false
                 }
         }
     }
@@ -78,7 +108,7 @@ class RecipesViewModel(private val repository: RecipeRepository) : ViewModel() {
                 println("🔵 [ViewModel] searchRecipes START avec query='$query'")
                 _isLoading.value = true
                 _errorMessage.value = null
-                _selectedCategory.value = null
+                _selectedCategory.value = ""
 
                 repository.refreshRecipes(query)
                 println("🟢 [ViewModel] repository.refreshRecipes terminé (Room mis à jour)")
@@ -101,7 +131,6 @@ class RecipesViewModel(private val repository: RecipeRepository) : ViewModel() {
                 _errorMessage.value = null
 
                 println("🔵 [ViewModel] Appel repository.refreshRecipeById('$id')")
-                // Rafraîchit depuis l'API → insère dans Room → Flow notifie automatiquement
                 repository.refreshRecipeById(id)
                 println("🟢 [ViewModel] repository.refreshRecipeById terminé (Room mis à jour)")
                 _isLoading.value = false
@@ -117,15 +146,15 @@ class RecipesViewModel(private val repository: RecipeRepository) : ViewModel() {
         }
     }
 
-    fun searchRecipesByCategory(category: String) {
+    fun searchRecipesByCategory(category: CategoryEntity) {
         viewModelScope.launch {
             try {
                 println("🔵 [ViewModel] searchRecipesByCategory START avec category='$category'")
                 _isLoading.value = true
                 _errorMessage.value = null
-                _selectedCategory.value = category
+                _selectedCategory.value = category.strCategory
 
-                repository.refreshRecipesByCategory(category)
+                repository.refreshRecipesByCategory(category.strCategory)
                 println("🟢 [ViewModel] repository.refreshRecipesByCategory terminé (Room mis à jour)")
                 _isLoading.value = false
             } catch (e: Exception) {
@@ -144,7 +173,7 @@ class RecipesViewModel(private val repository: RecipeRepository) : ViewModel() {
                 println("🔵 [ViewModel] searchRecipesByName START avec name='$name'")
                 _isLoading.value = true
                 _errorMessage.value = null
-                _selectedCategory.value = null
+                _selectedCategory.value = ""
 
                 repository.refreshRecipes(name)
                 println("🟢 [ViewModel] repository.refreshRecipes (by name) terminé (Room mis à jour)")

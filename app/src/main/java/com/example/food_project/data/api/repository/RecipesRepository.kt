@@ -20,7 +20,6 @@ class RecipeRepository(
             }
             val entities = remoteData.toEntities()
             println("🔵 [Repository] Insertion de ${entities.size} recettes dans Room...")
-            dao.clearAll()
             dao.insertRecipes(entities)
             println("🟢 [Repository] ${entities.size} recettes insérées dans la BDD interne")
 
@@ -36,9 +35,8 @@ class RecipeRepository(
         try {
             println("🔵 [Repository] refreshRecipesByCategory START pour category='$category'")
             val remoteData = api.searchRecipesByCategory(category)
-            val entities = remoteData.toEntities()
+            val entities = remoteData.toEntities(forcedCategory = category)
             println("🔵 [Repository] Insertion de ${entities.size} recettes dans Room...")
-            dao.clearAll()
             dao.insertRecipes(entities)
             println("🟢 [Repository] ${entities.size} recettes insérées dans la BDD interne")
         } catch (e: Exception) {
@@ -68,22 +66,6 @@ class RecipeRepository(
                 println("🔴 [Repository] ERREUR dans refreshRecipeById: ${e.message}")
                 e.printStackTrace()
             }
-    }
-
-    suspend fun refreshRecipeByName(name: String) {
-        try {
-            println("🔵 [Repository] refreshRecipeByName START pour name='$name'")
-            val remoteData = api.searchRecipesByName(name)
-            val entities = remoteData.toEntities()
-            println("🔵 [Repository] Insertion de ${entities.size} recettes dans Room...")
-            dao.clearAll()
-            dao.insertRecipes(entities)
-            println("🟢 [Repository] ${entities.size} recettes insérées dans la BDD interne")
-        } catch (e: Exception) {
-            println("🔴 [Repository] ERREUR dans refreshRecipeByName: ${e.message}")
-            e.printStackTrace()
-            throw e
-        }
     }
 
 }

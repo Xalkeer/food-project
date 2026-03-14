@@ -9,36 +9,42 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.example.food_project.data.Meal
+import com.example.food_project.data.api.viewModels.CategoryViewModel
+import com.example.food_project.data.api.viewModels.RecipesViewModel
 import com.example.food_project.ui.components.CategoryFilters
 import com.example.food_project.ui.components.RecipeCard
 import com.example.food_project.ui.components.RecipeSearchBar
-import com.example.food_project.viewmodel.MealViewModel
 
 @Composable
-fun HomeScreen(viewModel: MealViewModel) {
+fun HomeScreen(recipesViewModel : RecipesViewModel, categoryViewModel: CategoryViewModel) {
 
-    var selectedRestaurant by remember { mutableStateOf<Meal?>(null) }
+    val categories by categoryViewModel.uiState.collectAsState()
+    val recipes by recipesViewModel.filteredRecipes.collectAsState()
+    val selectedRecipe by recipesViewModel.selectedRecipe.collectAsState()
+    val selectedCategory by recipesViewModel.selectedCategory.collectAsState()
+    val searchQuery by recipesViewModel.searchQuery.collectAsState()
 
     Scaffold(containerColor = Color.Transparent) { padding ->
         Column(modifier = Modifier.fillMaxSize().padding(padding)) {
 
             RecipeSearchBar(
-                searchText = viewModel.searchText,
-                onSearchChange = { viewModel.updateSearch(it) }
+                searchText = searchQuery,
+                onSearchChange = {
+                    recipesViewModel.onSearchQueryChange(it)
+                    recipesViewModel.searchRecipes(it)}
             )
 
             CategoryFilters(
-                categories = viewModel.categories,
-                selectedCategory = viewModel.selectedCategory,
-                onCategorySelected = { viewModel.selectCategory(it) }
+                categories = categories,
+                selectedCategory = selectedCategory,
+                onCategorySelected = { category ->
+                    recipesViewModel.searchRecipesByCategory(category)
+                }
             )
 
             LazyColumn(
@@ -46,18 +52,19 @@ fun HomeScreen(viewModel: MealViewModel) {
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                items(viewModel.filteredRestaurants) { meal ->
+                items(recipes) { recipe ->
                     RecipeCard(
-                        meal = meal,
-                        onClick = { selectedRestaurant = meal }
+                        recipe = recipe,
+                        onClick = { recipesViewModel.selectRecipe(recipe) }
                     )
                 }
             }
         }
     }
 
-    selectedRestaurant?.let { resto ->
-        RecipeDetailScreen(resto) {
-        }
+    selectedRecipe?.let { recipe ->
+        RecipeDetailScreen(
+            recipe,
+            onDismiss = {recipesViewModel.clearSelectedRecipe()})
     }
 }

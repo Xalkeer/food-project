@@ -7,6 +7,7 @@ import com.example.food_project.data.api.repository.CategoriesRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 
 class CategoryViewModel(private val repository: CategoriesRepository) : ViewModel() {
@@ -15,25 +16,20 @@ class CategoryViewModel(private val repository: CategoriesRepository) : ViewMode
 
     fun loadCategories() {
         viewModelScope.launch {
-            try {
-                val dtos = repository.refreshCategories()
-
-                println("Catégories reçues (${dtos.size}):")
-                dtos.forEach { dto ->
-                    println("- id=${dto.id}, name=${dto.name}, imageUrl=${dto.imageUrl}")
+            repository.refreshCategories()
+            repository.category
+                .catch { e ->
+                    println("🔴 [ViewModel] Erreur Flow Room: ${e.message}")
                 }
-
-                _uiState.value = dtos.map { dto ->
-                    CategoryEntity(
-                        id = dto.id,
-                        strCategory = dto.name,
-                        strCategoryThumb = dto.imageUrl
-                    )
+                .collect { category ->
+                    _uiState.value = category
                 }
-
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
         }
+    }
+
+    init{
+
+        loadCategories()
+        println("Category chargé")
     }
 }

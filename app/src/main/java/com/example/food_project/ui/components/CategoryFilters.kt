@@ -14,20 +14,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.food_project.data.database.Category
+import com.example.food_project.data.api.entity.CategoryEntity
 
 @Composable
 fun CategoryFilters(
-    categories: List<Category>,
-    selectedCategory: Category,
-    onCategorySelected: (Category) -> Unit
+    categories: List<CategoryEntity>,
+    selectedCategory: String,
+    onCategorySelected: (CategoryEntity) -> Unit
 ) {
     LazyRow(
         contentPadding = PaddingValues(horizontal = 16.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(categories) { category ->
-            val isSelected = selectedCategory == category
+            val isSelected = selectedCategory == category.strCategory
             Surface(
                 shape = RoundedCornerShape(20.dp),
                 color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
@@ -35,7 +35,7 @@ fun CategoryFilters(
                 modifier = Modifier.clickable { onCategorySelected(category) }
             ) {
                 Text(
-                    text = category.title,
+                    text = category.strCategory,
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                     color = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
                     fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal

@@ -29,7 +29,6 @@ class RecipesViewModelFactory(private val context: Context) : ViewModelProvider.
 
             val recipesService = RecipesService(httpClient)
 
-            // DAO Room réel
             val db = AppDatabase.getDatabase(context.applicationContext)
             val recipeDao = db.recipeDao()
 
