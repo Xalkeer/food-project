@@ -46,12 +46,13 @@ class RecipeRepository(
         }
     }
 
-    suspend fun refreshRecipeById(id: String) {
+    suspend fun refreshRecipeById(id: String): RecipeEntity? {
             try {
                 println("🔵 [Repository] refreshRecipeById START pour id='$id'")
                 val dto = api.getRecipeById(id)
                 if (dto != null) {
                     val entity = dto.toEntities().firstOrNull()
+                    println("🔵 [Repository] Entity test ='$entity'")
                     if (entity != null) {
                         println("🔵 [Repository] Mise à jour de la recette id=${entity.id} dans Room...")
                         dao.insertRecipes(listOf(entity))
@@ -59,6 +60,7 @@ class RecipeRepository(
                     } else {
                         println("🔴 [Repository] Aucune entité créée à partir du DTO pour id='$id'")
                     }
+                    return entity
                 } else {
                     println("🔴 [Repository] Aucune recette trouvée pour id='$id' via l'API")
                 }
@@ -66,6 +68,6 @@ class RecipeRepository(
                 println("🔴 [Repository] ERREUR dans refreshRecipeById: ${e.message}")
                 e.printStackTrace()
             }
+        return null
     }
-
 }

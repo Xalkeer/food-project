@@ -52,7 +52,7 @@ fun HomeScreen(recipesViewModel : RecipesViewModel, categoryViewModel: CategoryV
                 contentPadding = PaddingValues(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                items(recipes) { recipe ->
+                items(recipes.reversed()) { recipe ->
                     RecipeCard(
                         recipe = recipe,
                         onClick = { recipesViewModel.selectRecipe(recipe) }

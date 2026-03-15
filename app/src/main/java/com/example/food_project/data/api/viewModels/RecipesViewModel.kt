@@ -66,7 +66,19 @@ class RecipesViewModel(private val repository: RecipeRepository) : ViewModel() {
     }
 
     fun selectRecipe(recipe: RecipeEntity) {
-        _selectedRecipe.value = recipe
+        viewModelScope.launch {
+            try {
+                _isLoading.value = true
+
+                val updatedRecipe = repository.refreshRecipeById(recipe.id)
+                _selectedRecipe.value = updatedRecipe
+                } catch (e: Exception) {
+                _errorMessage.value = "Impossible de charger les détails : ${e.message}"
+            } finally {
+                _isLoading.value = false
+            }
+        }
+
     }
 
     fun clearSelectedRecipe() {

@@ -35,6 +35,7 @@ class RecipesService(private val client: HttpClient) {
             val response: RecipesResponse = client.get("https://www.themealdb.com/api/json/v1/1/lookup.php") {
                 parameter("i", id)
             }.body()
+            println("Recipe détail : ${response.recipes?.firstOrNull()}")
             return response.recipes?.firstOrNull()
         } catch (e: Exception) {
             println("🔴 [RecipesService] ERREUR dans getRecipeById: ${e.message}")
@@ -45,9 +46,10 @@ class RecipesService(private val client: HttpClient) {
 
     suspend fun searchRecipesByCategory(category: String): List<RecipesDTO> {
         try {
-            val response: RecipesResponse = client.get("https://www.themealdb.com/api/json/v1/1/filter.php") {
-                parameter("c", category)
+            val response: RecipesResponse = client.get("https://www.themealdb.com/api/json/v1/1/search.php?") {
+                parameter("s", category)
             }.body()
+            println("Recipe add : ${response} ")
             return response.recipes ?: emptyList()
         } catch (e: Exception) {
             println("🔴 [RecipesService] ERREUR dans getRecipesByCategory: ${e.message}")
